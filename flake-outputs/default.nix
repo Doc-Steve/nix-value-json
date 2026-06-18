@@ -12,12 +12,13 @@ in
       plugin = pkgs.callPackage ./libnix-value-json.nix { };
       jsonDiff = pkgs.callPackage ./json-diff.nix { };
       lib = pkgs.lib;
+      pluginExt = if pkgs.stdenv.isDarwin then ".dylib" else ".so";
       evalScript = pkgs.writeShellApplication {
         runtimeInputs = [ pkgs.nix ];
         name = "nix-value-json-script";
         text = ''
           HOST=$1
-          nix eval --plugin-files ${lib.getLib plugin}/lib/libnix-value-json.so --raw \
+          nix eval --plugin-files ${lib.getLib plugin}/lib/libnix-value-json${pluginExt} --raw \
             --apply ${lib.escapeShellArg (builtins.readFile ./eval.nix)} "$HOST"
         '';
       };
